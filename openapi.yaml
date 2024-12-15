@@ -1,0 +1,35 @@
+openapi: 3.1.0
+info:
+  title: GEGENLICHT Register
+  description: |
+    The GEGENLICHT register allows our team members to speed up the handling
+    of visitors by directly displaying all reservations and allowing the usage
+    of QR codes for loyalty cards and reservation handling. Furthermore, it 
+    allows us to handle card payments by an integration of the SumUp Payment
+    Switch API.
+  version: v1.0.0
+  contact:
+    name: Unikino GEGENLICHT
+    email: info@gegenlicht.net
+    url: https://gegenlicht.net/kontakt
+  license:
+    name: European Publuc License 1.2
+    identifier: EUPL-1.2
+
+servers:
+  - url: http://localhost:8000
+    description: Local Development Server
+    
+  - url: https://register.gegenlicht.net
+    description: Official Instance
+
+components:
+  securitySchemes:
+    auth:
+      type: openIdConnect
+      description: |
+        Authenticate using OpenID Connect and exchange the `authorization_code`
+        for a Token Set via the `/auth/token` route.
+      scheme: Bearer
+      openIdConnectUrl: https://register.gegenlicht.net/api/auth/.openid-configuration
+  

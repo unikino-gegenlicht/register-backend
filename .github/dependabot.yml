@@ -1,0 +1,17 @@
+version: 2
+updates:
+  - package-ecosystem: gomod
+    directory: /
+    allow:
+      - dependency-type: direct
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: '[go]'
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: '[action]'
