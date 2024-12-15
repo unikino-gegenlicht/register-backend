@@ -56,7 +56,7 @@ jobs:
                 path: go-build-cache
                 key: ${{ env.PLATFORM_PAIR }}-go-build-cache-${{ hashFiles('**/go.sum') }}
 
-          - uses: reproducible-containers/buildkit-cache-dance@v2
+          - uses: reproducible-containers/buildkit-cache-dance@v3
             with:
                 cache-source: go-build-cache
 
