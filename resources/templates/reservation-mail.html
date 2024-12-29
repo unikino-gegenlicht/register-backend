@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Reservierungsbestätigung / Reservation Confirrmation</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <style>
+        a {
+            color: var(--bulma-body-color) !important;
+        }
+    </style>
+</head>
+
+<body
+    style="padding: 0.75rem; width: 100%; height: 100%; display: flex; flex-direction: column; align-content: center;">
+    <h1 style="align-self: center;" class="title">Reservierungsbestätigung / Reservation Confirrmation</h1>
+    <p style="align-self: center;" class="subtitle p-1">ID: {{ .Reservation.ID }}</p>
+    <p style="align-self: center;"><a style="color: unset !important;" href="#englishVersion">&ndash; English version
+            below &ndash;</a></p>
+    <div class="content">
+        <p>
+            Moin {{ .Reservation.FirstName }},
+        </p>
+        <p>
+            deine Reservierung von {{.Reservation.Seats}}
+            {{ if gt .Reservation.Seats 1 }}
+            Tickets
+            {{ else }}
+            Ticket
+            {{ end }}
+            für <i>{{ .Screening.Name }}</i> war erfolgreich.
+            Wir freuen uns dich am <i>{{ .Screening.Start.Format "02.01.2006"}}</i>
+            bei uns begrüßen zu dürfen.
+        </p>
+        <p>
+            Da wir pünktlich um <i>{{ .Screening.Start.Format "15:04"}}</i> starten
+            wollen und auch anderen Besuchenden eine Chance geben wollen an dem Tag
+            vorbeizukommen bitten wir dich, deine reservierten Karten <i>am Tag der
+                Vorführung</i> bis <i>{{ (.Screening.Start.Add (time.ParseDuration "-30m")).Format "15:04"}}</i>
+            abzuholen, andernfalls verfällt deine Reservierung.
+        </p>
+        <p>
+            Sollte es noch Fragen zur Reservierung oder sonstige Fragen geben,
+            antworte einfach auf diese E-Mail
+        </p>
+        <p>
+            Viele Gr&uuml;&szlig;e,<br />
+            Dein Unikino
+        </p>
+    </div>
+
+    <hr>
+    <p id="englishVersion" style="align-self: center;">&ndash; English Version &ndash;</p>
+    <div class="content">
+        <p>
+            Hello {{ .Reservation.FirstName }},
+        </p>
+        <p>
+            your reservation of {{.Reservation.Seats}}
+            {{ if gt .Reservation.Seats 1 }}
+            tickets
+            {{ else }}
+            ticket
+            {{ end }} for <i>{{ .Screening.Name }}</i> has been successful.
+            We are happy to welchome you on <i>{{ .Screening.Start.Format "January 2, 2006" }}</i>
+            at our cinema.
+        </p>
+        <p>
+            As we want to start the screening on time at <i>{{ .Screening.Start.Format "15.04"}}h</i>
+            and want to allow persons who didn't reserve a seat to join the screening
+            we ask you to pick up your reserved tickets <i>on the day of the screening</i>
+            until <i>{{ (.Screening.Start.Add (time.ParseDuration "-30m")).Format "15.04"}}h</i>.
+            If the tickets are not picked up by that time the reservation is automatically cancelled.
+        </p>
+        <p>
+            If you still have open questions about the reservation or something else,
+            just reach out by responding to the email.
+        </p>
+        <p>
+            Kind regards,<br />
+            your student cinema
+        </p>
+    </div>
+    <hr />
+    <div style="display: flex;flex-direction: column; align-content: center;">
+        <h2 style="align-self: center;" class="title is-size-4" style="align-self: center;">Zusammenfassung/Summary
+        </h2>
+        <div class="table-container">
+            <table class="table is-fullwidth">
+                <tbody>
+                    <tr>
+                        <th>Datum/Date</th>
+                        <td>{{ .Screening.Start.Format "02.01.2006"}}</td>
+                    </tr>
+                    <tr>
+                        <th>Uhrzeit/Time</th>
+                        <td>{{ .Screening.Start.Format "15:04"}}</td>
+                    </tr>
+                    <tr>
+                        <th>Vorf&uuml;hrung/Screening</th>
+                        <td>{{ .Screening.Name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Pl&auml;tze/Seats</th>
+                        <td>{{ .Screening.Name }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    <div style="display: flex;flex-direction: column; align-content: center; padding-top: 2.5rem">
+        <figure style="align-self: center;">
+            <img src="cid:qrcode.png" height="300px" width="300px" />
+            <figcaption style="text-align: center;">Check-In Code</figcaption>
+        </figure>
+    </div>
+    </div>
+    <hr />
+    <div>
+        <picture>
+            <source
+                style="width: 100%; height: fit-content; max-height: 5rem; margin-bottom: 15px; object-fit: contain;"
+                type="image/webp" media="(prefers-color-scheme: light)"
+                srcset="https://gegenlicht.net/wp-content/uploads/2024/09/796bb7b4c714a36587db29d7b728d219.webp">
+            <source
+                style="width: 100%; height: fit-content; max-height: 5rem; margin-bottom: 15px; object-fit: contain;"
+                type="image/webp" media="(prefers-color-scheme: dark)"
+                srcset="https://gegenlicht.net/wp-content/uploads/2024/12/34985d5529550ab5a8136d6ea26f398b.webp">
+            <img style="width: 100%; height: fit-content; max-height: 7.5rem; margin-bottom: 15px; object-fit: contain;"
+                src="https://gegenlicht.net/wp-content/uploads/2024/09/796bb7b4c714a36587db29d7b728d219.webp">
+        </picture>
+    </div>
+    <div
+        style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; align-content: flex-start; flex-direction: row;">
+        <div style="margin: 1ex">
+            <b>Unikino GEGENLICHT</b> <br>
+            Carl von Ossietzky Universität Oldenburg<br>
+            <table>
+                <tbody>
+                    <tr>
+                        <td style="padding: 0;padding-right: 5px;border-spacing: 0px;">Büro/Office:</td>
+                        <td style="padding: 0;padding-right: 5px;border-spacing: 0px;">M 1-161 (AStA-Trakt)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0;padding-right: 5px;border-spacing: 0px;">Telefon/Phone:</td>
+                        <td style="padding: 0;padding-right: 5px;border-spacing: 0px;"><a target="_blank"
+                                href="tel:+4944179825720" style="color: #000;">+49 (0) 441 798 257 20</a></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0;padding-right: 5px;border-spacing: 0px;">E-Mail:</td>
+                        <td style="padding: 0;padding-right: 5px;border-spacing: 0px;">
+                            <a target="_blank" href="mailto:info@gegenlicht.net"
+                                style="color: #000;">info@gegenlicht.net</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="margin: 1ex">
+            <b>Postanschrift/Postal Address</b> <br>
+            Unikino GEGENLICHT<br>
+            c/o AStA Uni Oldenburg<br>
+            Ammerländer Heerstraße 114-118<br>
+            26129 Oldenburg GERMANY
+        </p>
+        <p style="margin: 1ex">
+            <b>Öffnungszeiten &amp; Besucher*innenanschrift<br>Opening Times &amp; Visitor Address</b> <br>
+            Mittwochs/Wednesday 19:45 - 23:00 Uhr<br>
+            Bühne 1 (UNIKUM) • Uhlhornsweg 49-55<br> 26129 Oldenburg
+        </p>
+        <p style="margin: 1ex">
+            <b>Semesterfilmprogramm</b> <br>
+            <a class="external-link" target="_blank" href="https://gegenlicht.net?utm_source=E-Mail"
+                style="color: #000;">
+                www.gegenlicht.net
+            </a>
+            <br>
+            <a class="external-link" target="_blank" href="https://instagram.com/unikino_gegenlicht/"
+                style="color: #000;">
+                Instagram
+            </a>
+            •
+            <a class="external-link" target="_blank" href="https://mastodon.social/@gegenlicht" style="color: #000;">
+                Mastodon
+            </a>
+            •
+            <a class="external-link" target="_blank"
+                href="https://socials.gegenlicht.net/going/3?https://www.facebook.com/gegenlicht.net"
+                style="@media (prefers-color-scheme: dark) {color: #fff !important  ;}">Facebook
+            </a>
+        </p>
+    </div>
+
+</body>
+
+</html>
