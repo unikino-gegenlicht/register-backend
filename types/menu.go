@@ -2,5 +2,6 @@ package types
 
 type Menu struct {
 	Article          `db:""`
-	IncludedArticles []string `json:"includedArticles" db:"included_articles"`
+	IncludedTickets  []string ` json:"includedTickets" db:"tickets"`
+	IncludedArticles []string `json:"includedArticles" db:"items"`
 }

@@ -8,8 +8,5 @@ type Article struct {
 		Members *float64 `json:"members" db:"pice_members"`
 		Guests  float64  `json:"guests" db:"price_guests"`
 	} `json:"prices" db:""`
-	Style struct {
-		Color string `json:"color" db:"color"`
-		Icon  string `json:"icon" db:"icon"`
-	} `json:"style" db:""`
+	Color string `json:"color" db:"color"`
 }
