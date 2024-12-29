@@ -17,17 +17,23 @@ CREATE TABLE register.menus(
     enabled boolean not null default true,
     price_members money,
     price_guests money not null,
-    color text not null default '#dc00ff',
-    icon text not null default 'star'
+    color text not null default '#d90080',
+    tickets uuid[],
+    items uuid[]
 );
+
+CREATE TABLE register.ticket_types(
+    id uuid default gen_random_uuid() primary key,
+    name text not null unique,
+    price money not null,
+    color text not null default '#b1d300'
+)
 
 CREATE TABLE register.transactions(
     id uuid default gen_random_uuid() primary key,
     "timestamp" timestamptz not null default now(),
     amount money not null,
-    standard_tickets int not null default 0,
-    combined_tickets int not null default 0,
-    free_tickets int not null default 0,
+    tickets uuid[],
     menus uuid[],
     articles uuid[]
 )
