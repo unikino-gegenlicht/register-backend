@@ -32,4 +32,72 @@ components:
         for a Token Set via the `/auth/token` route.
       scheme: Bearer
       openIdConnectUrl: https://register.gegenlicht.net/api/auth/.openid-configuration
+  schemas:
+    Article:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          allowEmptyValues: false
+        prices:
+          type: object
+          properties:
+            members:
+              type: number
+            guests:
+              type: number
+        style:
+          type: object
+          properties:
+            color:
+              type: string
+              pattern: "^#(?:[0-9a-fA-F]{3}){1,2}$"
+              description: |
+                A hexadecimal color code used as the base color for the
+                button the article will be shown on.
+            icon:
+              type: string
+              description: |
+                The name of the icon used to represent the article on a
+                button
+              externalDocs:
+                description: Icon List
+                url: https://lucide.dev/icons/
+
+paths:
+  /articles:
+    get:
+      summary: Get all available articles
+      responses:
+        200:
+          description: Article List
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Article'
+  /articles/{articleID}:
+    parameters:
+      - in: path
+        name: articleID
+        required: true
+        schema:
+          type: string
+          allowEmptyValues: false
+          format: uuid
+
+    get:
+      summary: Get Article Information
+      responses:
+        200:
+          description: Article List
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+      
   
