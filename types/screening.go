@@ -1,8 +1,8 @@
 package types
 
 type Screening struct {
-	ID             string `json:"id" db:"id"`
-	WordpressID    int    `json:"wpID" db:"wordpress_id"`
-	Title          string `json:"title" db:"title"`
+	ID             string `db:"id"               json:"id"`
+	WordpressID    int    `db:"wordpress_id"     json:"wpID"`
+	Title          string `db:"title"            json:"title"`
 	AvailableSeats int    `json:"availableSeats"`
 }

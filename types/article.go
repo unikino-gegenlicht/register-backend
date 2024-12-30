@@ -1,12 +1,12 @@
 package types
 
 type Article struct {
-	ID      string `json:"id" db:"id"`
-	Name    string `json:"name" db:"name"`
-	Enabled bool   `json:"enabled" db:"enabled"`
+	ID      string `db:"id"      json:"id"`
+	Name    string `db:"name"    json:"name"`
+	Enabled bool   `db:"enabled" json:"enabled"`
 	Prices  struct {
-		Members *float64 `json:"members" db:"pice_members"`
-		Guests  float64  `json:"guests" db:"price_guests"`
+		Members *float64 `db:"pice_members" json:"members"`
+		Guests  float64  `db:"price_guests" json:"guests"`
 	} `json:"prices" db:""`
-	Color string `json:"color" db:"color"`
+	Color string `db:"color" json:"color"`
 }

@@ -6,8 +6,11 @@ import (
 	"log/slog"
 	"os"
 	"register-backend/internal/configuration"
+	"register-backend/resources"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/stdlib"
+	"github.com/pressly/goose/v3"
 )
 
 var Pool *pgxpool.Pool
@@ -46,4 +49,19 @@ func init() {
 		os.Exit(1)
 	}
 	Pool = pool
+
+	// execute migrations to the database against the database schema
+	db := stdlib.OpenDBFromPool(Pool)
+	goose.SetBaseFS(resources.Migrations)
+
+	if err := goose.SetDialect("postgres"); err != nil {
+		slog.Error("unable to use posgres as goose dialect", "error", err.Error())
+		os.Exit(1)
+	}
+
+	if err := goose.Up(db, "migrations"); err != nil {
+		slog.Error("unable to execute database migrations", "error", err.Error())
+		os.Exit(2)
+	}
+
 }
