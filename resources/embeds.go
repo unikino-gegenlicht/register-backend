@@ -3,7 +3,7 @@ package resources
 import "embed"
 
 //go:embed queries.sql
-var QueryFile embed.FS
+var Queries string
 
 //go:embed migrations/*.sql
 var Migrations embed.FS

@@ -8,7 +8,7 @@ CREATE TABLE register.articles(
     enabled boolean not null default true,
     price_members money,
     price_guests money not null,
-    color text not null default '#00a2ff',
+    color text not null default '#00a2ff'
 );
 
 CREATE TABLE register.menus(
@@ -27,7 +27,7 @@ CREATE TABLE register.ticket_types(
     name text not null unique,
     price money not null,
     color text not null default '#b1d300'
-)
+);
 
 CREATE TABLE register.transactions(
     id uuid default gen_random_uuid() primary key,
@@ -36,5 +36,5 @@ CREATE TABLE register.transactions(
     tickets uuid[],
     menus uuid[],
     articles uuid[]
-)
+);
 -- +goose StatementEnd
