@@ -50,6 +50,7 @@ func main() {
 	{
 		article.GET("/", articles.GetAll)
 		article.GET("/:articleID", articles.GetSingle)
+		article.PUT("/", articles.New)
 	}
 	ticketing := router.Group("/tickets")
 	{
