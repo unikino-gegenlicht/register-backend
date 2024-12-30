@@ -1,0 +1,13 @@
+linters:
+  enable:
+    - asciicheck
+    - dupl
+    - errname
+    - errorlint
+    - gocheckcompilerdirectives
+    - goconst
+    - godox
+    - gosec
+    - sloglint
+    - tagalign
+  fast: true
