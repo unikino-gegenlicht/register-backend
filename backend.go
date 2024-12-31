@@ -17,8 +17,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 
 	"github.com/gin-contrib/requestid"
 	"github.com/wisdom-oss/common-go/v3/types"
@@ -33,6 +33,8 @@ func main() {
 	router.Use(middleware.ErrorHandler)
 	router.Use(gin.CustomRecovery(middleware.RecoveryHandler))
 	router.HandleMethodNotAllowed = true
+	router.RedirectFixedPath = true
+	router.UseH2C = true
 	router.NoMethod(func(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusMethodNotAllowed, types.ServiceError{
 			Type:   "https://www.rfc-editor.org/rfc/rfc9110.html#section-15.5.6",
@@ -49,6 +51,22 @@ func main() {
 			Detail: "The requested path does not exist in this microservice. Please check the documentation and your request",
 		})
 	})
+
+	// fixing not getting the json field name in validation errors as it's a
+	// buggy behavior in go-playground/validator
+	//
+	// ref: https://github.com/go-playground/validator/issues/935
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		v.RegisterTagNameFunc(func(fld reflect.StructField) string {
+			name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
+
+			if name == "-" {
+				return ""
+			}
+
+			return name
+		})
+	}
 
 	/* Route Configuration */
 	article := router.Group("/articles")
@@ -73,7 +91,7 @@ func main() {
 
 	server := &http.Server{
 		Addr:              net.JoinHostPort(config.GetString("host"), config.GetString("port")),
-		Handler:           h2c.NewHandler(router.Handler(), &http2.Server{}),
+		Handler:           router.Handler(),
 		ReadHeaderTimeout: 30 * time.Second,
 	}
 
