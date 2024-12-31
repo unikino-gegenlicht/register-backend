@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"register-backend/internal/configuration"
 	_ "register-backend/internal/database"
+	"register-backend/internal/middleware"
 	"register-backend/routes/articles"
 	"register-backend/routes/tickets"
 	"syscall"
@@ -19,6 +20,7 @@ import (
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 
+	"github.com/gin-contrib/requestid"
 	"github.com/wisdom-oss/common-go/v3/types"
 )
 
@@ -26,7 +28,10 @@ func main() {
 
 	config := configuration.Config.Sub("http")
 
-	router := gin.Default()
+	router := gin.New()
+	router.Use(requestid.New())
+	router.Use(middleware.ErrorHandler)
+	router.Use(gin.CustomRecovery(middleware.RecoveryHandler))
 	router.HandleMethodNotAllowed = true
 	router.NoMethod(func(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusMethodNotAllowed, types.ServiceError{
