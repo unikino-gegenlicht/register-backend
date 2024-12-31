@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.0.3
 info:
   title: GEGENLICHT Register
   description: |
@@ -14,7 +14,7 @@ info:
     url: https://gegenlicht.net/kontakt
   license:
     name: European Publuc License 1.2
-    identifier: EUPL-1.2
+    url: https://interoperable-europe.ec.europa.eu/sites/default/files/custom-page/attachment/2020-03/EUPL-1.2%20EN.txt
 
 servers:
   - url: http://localhost:8000
@@ -23,54 +23,74 @@ servers:
   - url: https://register.gegenlicht.net
     description: Official Instance
 
+tags:
+  - name: Articles
+    description: API Endpoint for managing articles
+
+  - name: Reservations
+    description: API Endpoints for managing reservations
+
+  - name: Ticketing
+    description: API Endpoints for generating ticket and managing ticket types
+
+  - name: Other
+    description: API Endpoints which are not sortable into one of the other categories
+
 components:
   securitySchemes:
-    auth:
+    user-api:
       type: openIdConnect
       description: |
         Authenticate using OpenID Connect and exchange the `authorization_code`
         for a Token Set via the `/auth/token` route.
-      scheme: Bearer
       openIdConnectUrl: https://register.gegenlicht.net/api/auth/.openid-configuration
+
+    integration-api:
+      type: apiKey
+      name: api-key
+      in: header
+
   schemas:
     Article:
+      allOf:
+        - $ref: '#/components/schemas/NewArticle'
+        - required:
+            - id
+          properties:
+            id:
+              type: string
+              format: uuid
+    NewArticle:
       type: object
+      required:
+        - name
+        - prices
+        - color
       properties:
-        id:
-          type: string
-          format: uuid
         name:
           type: string
-          allowEmptyValues: false
         prices:
           type: object
           properties:
             members:
               type: number
+              nullable: true
             guests:
               type: number
-        style:
-          type: object
-          properties:
-            color:
-              type: string
-              pattern: "^#(?:[0-9a-fA-F]{3}){1,2}$"
-              description: |
-                A hexadecimal color code used as the base color for the
-                button the article will be shown on.
-            icon:
+        color:
               type: string
               description: |
-                The name of the icon used to represent the article on a
-                button
-              externalDocs:
-                description: Icon List
-                url: https://lucide.dev/icons/
+                A color representation in one of the following formats:
+                  - hexcolor
+                  - rgb
+                  - hsl
 
 paths:
   /articles:
     get:
       summary: Get all available articles
+      tags:
+        - Articles
       responses:
         200:
           description: Article List
@@ -80,6 +100,25 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Article'
+
+    put:
+      summary: Create New Article
+      tags:
+        - Articles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewArticle'
+      responses:
+        201:
+          description: Article Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+      
   /articles/{articleID}:
     parameters:
       - in: path
@@ -87,11 +126,12 @@ paths:
         required: true
         schema:
           type: string
-          allowEmptyValues: false
           format: uuid
 
     get:
       summary: Get Article Information
+      tags:
+        - Articles
       responses:
         200:
           description: Article List
