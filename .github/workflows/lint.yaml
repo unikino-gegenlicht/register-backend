@@ -1,5 +1,9 @@
 name: lint
-on: ["push", "pull_request"]
+on:
+  pull_request:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -11,7 +15,7 @@ jobs:
         name: lint
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@v4
             - uses: actions/setup-go@v5
               with:
                 go-version: stable
@@ -19,4 +23,3 @@ jobs:
               with:
                 version: v1.62
                 only-new-issues: ${{ github.event_name == 'pull_request'}}
-                args: --enable-all --no-config
