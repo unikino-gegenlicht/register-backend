@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"reflect"
 	"register-backend/internal/configuration"
 	_ "register-backend/internal/database"
 	"register-backend/internal/middleware"
@@ -72,8 +73,10 @@ func main() {
 	article := router.Group("/articles")
 	{
 		article.GET("/", articles.GetAll)
-		article.GET("/:articleID", articles.GetSingle)
 		article.PUT("/", articles.New)
+		article.GET("/:articleID", articles.GetSingle)
+		article.PATCH("/:articleID", articles.Edit)
+		article.DELETE("/:articleID", articles.Delete)
 	}
 	ticketing := router.Group("/tickets")
 	{
