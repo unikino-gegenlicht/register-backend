@@ -20,9 +20,13 @@ func GetSingle(c *gin.Context) {
 	var article types.Article
 	err = pgxscan.Get(c, database.Pool, &article, query, articleID)
 	if err != nil {
-		// TODO: Enhance error handling by filtering out errors which indicate
-		//   that a article has not been found
-		c.AbortWithError(500, err)
+		if pgxscan.NotFound(err) {
+			c.Abort()
+			ErrUnknownArticle.Emit(c)
+			return
+		}
+		c.Abort()
+		_ = c.Error(err)
 		return
 	}
 
