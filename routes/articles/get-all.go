@@ -19,7 +19,8 @@ func GetAll(c *gin.Context) {
 	var articles []types.Article
 	err = pgxscan.Select(c, database.Pool, &articles, query)
 	if err != nil {
-		c.AbortWithError(500, err)
+		c.Abort()
+		_ = c.Error(err)
 		return
 	}
 

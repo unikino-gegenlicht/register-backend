@@ -1,2 +1,6 @@
-# ignore configuration files
-/config.*
+# ignore the configuration file that is present in a local repository
+config.toml
+
+# ignore locally generated debugging binaries
+*.exe
+__debug_bin

@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.0.3
 info:
   title: GEGENLICHT Register
   description: |
@@ -7,14 +7,18 @@ info:
     of QR codes for loyalty cards and reservation handling. Furthermore, it 
     allows us to handle card payments by an integration of the SumUp Payment
     Switch API.
+
+    *Important Note*: Empty fields in error responses (aka `null` and the native
+    emtpy values) are automatically omitted in the responses if they are not
+    listed as required in the corresponding schema
   version: v1.0.0
   contact:
     name: Unikino GEGENLICHT
     email: info@gegenlicht.net
     url: https://gegenlicht.net/kontakt
   license:
-    name: European Publuc License 1.2
-    identifier: EUPL-1.2
+    name: European Public License 1.2
+    url: https://interoperable-europe.ec.europa.eu/sites/default/files/custom-page/attachment/2020-03/EUPL-1.2%20EN.txt
 
 servers:
   - url: http://localhost:8000
@@ -23,54 +27,160 @@ servers:
   - url: https://register.gegenlicht.net
     description: Official Instance
 
+tags:
+  - name: Articles
+    description: API Endpoint for managing articles
+
+  - name: Reservations
+    description: API Endpoints for managing reservations
+
+  - name: Ticketing
+    description: API Endpoints for generating ticket and managing ticket types
+
+  - name: Other
+    description: API Endpoints which are not sortable into one of the other categories
+
 components:
   securitySchemes:
-    auth:
+    user-api:
       type: openIdConnect
       description: |
         Authenticate using OpenID Connect and exchange the `authorization_code`
         for a Token Set via the `/auth/token` route.
-      scheme: Bearer
       openIdConnectUrl: https://register.gegenlicht.net/api/auth/.openid-configuration
+
+    integration-api:
+      type: apiKey
+      name: api-key
+      in: header
+
   schemas:
     Article:
+      allOf:
+        - $ref: '#/components/schemas/NewArticle'
+        - required:
+            - id
+          properties:
+            id:
+              type: string
+              format: uuid
+    NewArticle:
       type: object
+      required:
+        - name
+        - prices
+        - color
       properties:
-        id:
-          type: string
-          format: uuid
         name:
           type: string
-          allowEmptyValues: false
         prices:
-          type: object
-          properties:
-            members:
-              type: number
-            guests:
-              type: number
-        style:
-          type: object
-          properties:
-            color:
-              type: string
-              pattern: "^#(?:[0-9a-fA-F]{3}){1,2}$"
-              description: |
-                A hexadecimal color code used as the base color for the
-                button the article will be shown on.
-            icon:
-              type: string
-              description: |
-                The name of the icon used to represent the article on a
-                button
-              externalDocs:
-                description: Icon List
-                url: https://lucide.dev/icons/
+          $ref: "#/components/schemas/Prices"
+        color:
+          type: string
+          description: |
+            A color representation in one of the following formats:
+              - hexcolor
+              - rgb
+              - hsl
+    Prices:
+      type: object
+      properties:
+        members:
+          type: number
+          nullable: true
+          minimum: 0
+        guests:
+          type: number
+          minimum: 0
+
+  responses:
+    NotFoundError:
+      description: Object Not Found
+      content:
+        application/problem+json:
+          schema:
+            type: object
+            required:
+              - type
+              - status
+              - title
+              - detail
+              - instance
+              - host
+            properties:
+              type:
+                type: string
+                default: https://www.rfc-editor.org/rfc/rfc9110#section-15.5.5
+              status:
+                type: integer
+                default: 404
+              title:
+                type: string
+                example: Object Not Found
+              detail:
+                type: string
+                example: The object id is not found on the server
+              instance:
+                type: string
+                format: uri
+                example: tag:authority,2024-12-31:ObjectNotFound:1735640282
+              errors:
+                type: array
+                nullable: true
+                items:
+                  type: string
+                example: null
+              host:
+                type: string
+                example: authority
+    BadRequest:
+      description: Request failed
+      content:
+        application/problem+json:
+          schema:
+            type: object
+            required:
+              - type
+              - status
+              - title
+              - detail
+              - instance
+              - host
+            properties:
+              type:
+                type: string
+                default: https://www.rfc-editor.org/rfc/rfc9110#section-15.5.1
+              status:
+                type: integer
+                default: 400
+              title:
+                type: string
+                example: Bad Request
+              detail:
+                type: string
+                example: This is the reason why the request was bad
+              instance:
+                type: string
+                format: uri
+                example: tag:authority,2024-12-31:BadRequest:1735640282
+              errors:
+                type: array
+                nullable: true
+                description: This array may contain more information (e.g., validation errors)
+                items:
+                  type: string
+                example: null
+              host:
+                type: string
+                example: authority
+        
 
 paths:
   /articles:
     get:
       summary: Get all available articles
+      tags:
+        - Articles
       responses:
         200:
           description: Article List
@@ -79,7 +189,28 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Article'
+                  $ref: "#/components/schemas/Article"
+
+    put:
+      summary: Create New Article
+      tags:
+        - Articles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewArticle"
+      responses:
+        201:
+          description: Article Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Article"
+        400:
+          $ref: "#/components/responses/BadRequest"
+
   /articles/{articleID}:
     parameters:
       - in: path
@@ -87,17 +218,109 @@ paths:
         required: true
         schema:
           type: string
-          allowEmptyValues: false
           format: uuid
 
     get:
       summary: Get Article Information
+      tags:
+        - Articles
       responses:
         200:
-          description: Article List
+          description: Article Information
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Article'
-      
+                $ref: "#/components/schemas/Article"
+        404:
+          $ref: "#/components/responses/NotFoundError"
+
+    patch:
+      summary: Update Article Information
+      tags:
+        - Articles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  nullable: true
+                enabled:
+                  type: string
+                  nullable: true
+                prices:
+                  $ref: "#/components/schemas/Prices"
+                color:
+                  type: string
+                  description: |
+                    A color representation in one of the following formats:
+                      - hexcolor
+                      - rgb
+                      - hsl (only intergers are supported due to a limitation in go)
+      responses:
+        200:
+          description: Article Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Article"
+
+        400:
+          $ref: "#/components/responses/BadRequest"
   
+        404:
+          $ref: "#/components/responses/NotFoundError"
+
+    delete:
+      tags:
+        - Articles
+      summary: Delete an article
+      responses:
+        204:
+          description: Article Deleted
+
+        403:
+          description: Article Undeletable
+          content:
+            application/problem+json:
+              schema:
+                type: object
+                required:
+                  - type
+                  - status
+                  - title
+                  - detail
+                  - instance
+                  - host
+                properties:
+                  type:
+                    type: string
+                    default: https://www.rfc-editor.org/rfc/rfc9110#section-15.5.4
+                  status:
+                    type: integer
+                    default: 403
+                  title:
+                    type: string
+                    example: Article Used In Transaction
+                  detail:
+                    type: string
+                    example: The article has already been used in a transaction and may not be deleted
+                  instance:
+                    type: string
+                    format: uri
+                    example: tag:authority,2024-12-31:ArticleUsedInTransaction:1735640282
+                  errors:
+                    type: array
+                    nullable: true
+                    items:
+                      type: string
+                    example: null
+                  host:
+                    type: string
+                    example: authority
+  
+        404:
+          $ref: "#/components/responses/NotFoundError"
+
